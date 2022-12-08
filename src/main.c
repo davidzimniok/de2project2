@@ -30,14 +30,18 @@
  **********************************************************************/
 int main(void){
 
+    //initialization of UART (used only for testing purposes)
     uart_init(UART_BAUD_SELECT(9600,F_CPU));
+    //set output pins for PWM to output mode
     GPIO_mode_output(&DDRD,PD6);
     GPIO_mode_output(&DDRB,PB3);
+    //set timer0 to fast PWM mode
     TCCR0A |= ((1UL<<7) | (1UL<<0) | (1UL<<1));
-    //prescale clock with N=256
+    //prescale clock for timer0 with N=256 for ensure maximal pulse width 2ms
     TCCR0B |= (1UL<<2);
+    //set timer2 to fast PWM mode
     TCCR2A |= ((1UL<<7) | (1UL<<0) | (1UL<<1));
-    //prescale clock with N=256
+    //prescale clock for timer2 with N=256 for ensure maximal pulse width 2ms
     TCCR2B |= ((1UL<<2) | (1UL<<1));
 
     // Configure Analog-to-Digital Convertion unit
@@ -52,23 +56,21 @@ int main(void){
     // Set clock prescaler to 128
     ADCSRA |= (1UL<<0)|(1UL<<1)|(1UL<<2);
 
+    //initialize LCD and print default informations
     lcd_init(LCD_DISP_ON);
     lcd_gotoxy(1, 0); lcd_puts("x");
     lcd_gotoxy(1, 1); lcd_puts("y");
 
-
+    //start timer1 - interrupt reads data from joystick and updates LCD
     TIM1_overflow_4ms();
     TIM1_overflow_interrupt_enable();
 
     // Enables interrupts by setting the global interrupt mask
     sei();
 
+    //load default values to PWM output registers (set duty cycle - minimal 0 maximal 255)
     OCR0A=50;
     OCR2A=50;
-
-    //OCR0A = 0;
-
-   
 
     // Infinite loop
     while (1){
@@ -97,30 +99,40 @@ ISR(TIMER1_OVF_vect){
     ADMUX &= ~((1UL<<0)|(1UL<<1)|(1UL<<2)|(1UL<<3));
     ADCSRA |= (1UL<<6);
 
+    //save data from ADC
     val1 = ADC;
 
+    //change channel of ADC
     ADMUX |= (1UL<<0);
+    //wait one cycle to change data in register
     do{
         ;
     }while((ADCSRA&16)==0);
+    //start second conversion
     ADCSRA |= (1UL<<6);
     
+    //save data from ADC to variable
     val2 = ADC;
     
+    //rotate servo dependant on value from ADC
     OCR0A=val1*(115.0/1024.0)+35;
     OCR2A=val2*(115.0/1024.0)+35;
 
+    //calculate angle of rotation from 0 to 180 degrees and print to LCD, function sprintf ensures deleting old values on LCD with whitespaces
     sprintf(str,"%3d",(uint16_t)((float)val1*(180.0/1024.0)));
     lcd_gotoxy(3, 0);
     lcd_puts(str);
+    //print degree symbol from HD44780 memory
     lcd_putc(223);
 
+    //calculate angle of rotation from 0 to 180 degrees and print to LCD, function sprintf ensures deleting old values on LCD with whitespaces
     sprintf(str,"%3d",(uint16_t)((float)val2*(180.0/1024.0)));
     lcd_gotoxy(3, 1);
     lcd_puts(str);
+    //print degree symbol from HD44780 memory
     lcd_putc(223);
-    overfl=0;
-
+    
+    //indicate the movement on LCD pipe=stay on place, < = move to left, > = move to right
     if(val1>400&&val1<600){
       lcd_gotoxy(13, 0);
       lcd_puts(" | ");
@@ -133,6 +145,8 @@ ISR(TIMER1_OVF_vect){
       lcd_gotoxy(13, 0);
       lcd_puts("  >");
     }
+
+    //indicate the movement on LCD pipe=stay on place, v = move down, ^ = move up
     if(val2>400&&val2<600){
       lcd_gotoxy(13, 1);
       lcd_puts(" - ");
@@ -146,6 +160,8 @@ ISR(TIMER1_OVF_vect){
       lcd_gotoxy(13, 1);
       lcd_puts("  v");
     }
+
+    overfl=0;
   }
   else if(overfl>=40){
       overfl=0;
@@ -159,7 +175,3 @@ ISR(TIMER1_OVF_vect){
 ISR(ADC_vect){
     ;
 }
-
-/*https://docs.arduino.cc/retired/boards/arduino-uno-rev3-with-long-pins
-https://www.teachmemicro.com/arduino-servo-motor-tutorial/
-https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf*/

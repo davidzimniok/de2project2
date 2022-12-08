@@ -14,23 +14,29 @@ The goal of the project is cooperation in pairs, further study of the topic, des
 
 ## Recommended GitHub repository structure
 
-   ```c
-   YOUR_PROJECT        // PlatfomIO project
+```c
+   project2        // PlatfomIO project
    ├── include         // Included files
+   │   └── timer.h
    ├── lib             // Libraries
+   │   └── gpio
+   │      └── gpio.c
+   │      └── gpio.h
+   │   └── lcd
+   │      └── lcd.c
+   │      └── lcd.h
+   │      └── lcd_definitions.h
    ├── src             // Source file(s)
    │   └── main.c
-   ├── test            // No need this
    ├── platformio.ini  // Project Configuration File
    └── README.md       // Report of this project
    ```
 
-## Recommended README.md file structure
 
 ### Team members
 
-* Member 1 (responsible for xxx)
-* Member 2 (responsible for xxx)
+* Vojtěch Vídeňský (zodopovědný za github repozitář, video, testování aplikace)
+* David Zimniok (zodpovědný za zdrojový kód)
 
 ## Hardware description
 
@@ -46,5 +52,6 @@ Insert a link to a short video with your practical implementation example (1-3 m
 
 ## References
 
-1. Write your text here.
-2. ...
+1. Arduino UNO pinout: [https://docs.arduino.cc/retired/boards/arduino-uno-rev3-with-long-pins](https://docs.arduino.cc/retired/boards/arduino-uno-rev3-with-long-pins)
+2. Práce s PWM a se servo motorky: [https://www.teachmemicro.com/arduino-servo-motor-tutorial/](https://www.teachmemicro.com/arduino-servo-motor-tutorial/)
+3. Datasheet ATmega 328P: [https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf)
