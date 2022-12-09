@@ -35,7 +35,7 @@ The goal of the project is cooperation in pairs, further study of the topic, des
 
 ### Team members
 
-* Vojtěch Vídeňský (zodopovědný za github repozitář, video, testování aplikace)
+* Vojtěch Vídeňský (zodopovědný za zapojení, github repozitář, video, testování aplikace)
 * David Zimniok (zodpovědný za zdrojový kód)
 
 ## Hardware description
@@ -44,7 +44,71 @@ Insert descriptive text and schematic(s) of your implementation.
 
 ## Software description
 
-Put flowchats of your algorithm(s). Write descriptive text of your libraries and source files. Put direct links to these files in `src` or `lib` folders.
+### Knihovna timer.h
+Knihovna je použitá pouze pro nastavení časovače 1, který obsuhuje joystick a operace spojené s ním. Natáčí servomotorky a vypisuje data na LCD.
+
+Knihovna timer.h je dostupná [zde](/include/timer.h). Popis registrů je dostupný v oficiálním manuálu [ATmega328P_Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf) na straně 108-113 pro timer 1.
+
+### Knihovna gpio.h
+Z knihovny gpio.h je využitá pouze jedna funkce, která by se dala nahradit pouhým zápisem 1čky do registru. Jedná se o funkci ```GPIO_output()```, která přiřazuje do DDRx registru 1čku na pozici pinu který používáme např.: ```DDRD |= (1UL<<2)``` je nastavení pinu 2 na portu D (PD2). Díky použití této funkce můžeme jednoduše změnit tyto piny, když bychom změnili zařízení například na Arduino Mega.
+
+### Library lcd.h
+Knihovna použita od autora Peter Fleury. Stránky projektu jsou dostupné na: [http://www.peterfleury.epizy.com/avr-lcd44780.html](http://www.peterfleury.epizy.com/avr-lcd44780.html). Ke knihovně je přidán soubor [lcd_definitions.h](/lib/lcd/lcd_definitions.h), který pouze definuje podobným způsobem jako pro GPIO porty, na kterých pinech jsou zapojené datové a řídící signály pro LCD display.
+
+### Zdrojový kód main.c
+Soubor se skládá z funkce main, která má za úkol nastavit všechny registry a vektory přerušení a následně obsahuje pouze vektor přerušení pro časovač 1, obsluhující pohyby joysticku.
+
+#### Nastavení timerů pro použití PWM módu
+
+Pro použití rychlého PWM je nutno nastavit správně registry. Prvním důležitým registrem je TCCRxB, který nastavuje předděličku pro výsledné PWM. Zde je důležité dodržet to, že pro natoční servomotorku do pozice odpovídající 0 stupňům je nutné přivést na servo signál, který nehledě na délku nulového impulsu musí být jedničkový stav dlouhý 1ms a pro natočení do úhlu 180 stupňů musí být impuls dlouhý 2ms. Proto je nutné nastavit dělení tak, aby perioda PWM signálu byla minimálně 2ms. Pokud nastavíme prescaler na 256 tak při frekvencí jádra 16MHz získáme frekvenci kolem 4ms (viz rovince).
+
+![výpočet frekvence PWM signálu](/images/eq1.png)
+
+Dále teoreticky pokud budeme signál délku periody vydělíme 255 (maximální hodnota, která určuje střídu) a vynásobíme požadovanou střídou v rozsahu 0 až 255, získáme požadovaný signál. Bohužel tato úvaha se nám nepotvrdila, avšak empiricky jsme nastavili střídy na: minimálně 35 a maximálne 135.
+
+Registr TCCRxA nastavuje: bit 7 nastaví, že dojde k vynulování registru OC2A, když dojde k vyrovnání vnitčních čítačů, bit 0 a 1 nastavují právě fast PWM mód. Vše je opět dohledatelné v datesheetu v sekci popisující timer-y. ([ATmega328P_Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf))
+
+Nastavení timeru 0
+```c
+    //set timer0 to fast PWM mode
+    TCCR0A |= ((1UL<<7) | (1UL<<0) | (1UL<<1));
+    //prescale clock for timer0 with N=256 for ensure maximal pulse width 2ms
+    TCCR0B |= (1UL<<2);
+```
+
+Nastavení timeru 1
+```c
+    //set timer2 to fast PWM mode
+    TCCR2A |= ((1UL<<7) | (1UL<<0) | (1UL<<1));
+    //prescale clock for timer2 with N=256 for ensure maximal pulse width 2ms
+    TCCR2B |= ((1UL<<2) | (1UL<<1));
+```
+
+#### Nastavení ADC převodníku pro čtení dat z joysticku
+
+Nastavení převodníku je provedeno dle laboratorního cvičení ([dostupné zde](https://github.com/tomas-fryza/digital-electronics-2/tree/master/labs/05-adc)). 
+
+```c
+    // Configure Analog-to-Digital Convertion unit
+    // Select ADC voltage reference to "AVcc with external capacitor at AREF pin"
+    ADMUX |= (1UL<<6);
+    // Select input channel ADC0 (voltage divider pin)
+    ADMUX &= ~((1UL<<0)|(1UL<<1)|(1UL<<2)|(1UL<<3));
+    // Enable ADC module
+    ADCSRA |= (1UL<<7);
+    // Enable conversion complete interrupt
+    ADCSRA |= (1UL<<3);
+    // Set clock prescaler to 128
+    ADCSRA |= (1UL<<0)|(1UL<<1)|(1UL<<2);
+```
+
+#### Funkce main - vývojový diagram
+
+![Vývojový diagram pro funkci main](/images/main_diag.png)
+
+#### Vektor přerušení pro TIMER 1 vývojový diagram
+
+![Vývojový diagram pro vektor přerušení časovače 1](/images/ovf_diag.png)
 
 ## Video
 
