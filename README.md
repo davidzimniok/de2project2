@@ -137,7 +137,7 @@ Nastavení převodníku je provedeno dle laboratorního cvičení ([dostupné zd
 
 ## Video
 
-Insert a link to a short video with your practical implementation example (1-3 minutes, e.g. on YouTube).
+https://youtu.be/krdHBYT46hA
 
 ## References
 
