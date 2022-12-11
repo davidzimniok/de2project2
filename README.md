@@ -35,12 +35,36 @@ The goal of the project is cooperation in pairs, further study of the topic, des
 
 ### Team members
 
-* Vojtěch Vídeňský (zodopovědný za zapojení, github repozitář, video, testování aplikace)
+* Vojtěch Vídenský (zodopovědný za zapojení, github repozitář, video, testování aplikace)
 * David Zimniok (zodpovědný za zdrojový kód)
 
 ## Hardware description
 
-Insert descriptive text and schematic(s) of your implementation.
+V projektu je použit mikrokontrolér Arduino Uno, který je založen na AVR čipu ATMEGA328P. Jako vnější periferie jsou použity LCD displey Digilent pro zobrazování informací, joystick pro ovládání zařízení a dva servo motory SG90. Servo motory představují pohony  pohyb robotické ruky ve dvou dimenzích.
+
+### Schéma zapojení
+
+
+### Digilent PmodCLP LCD module
+LCD diplej je výstupní zařízení, které umožňuje zobrazení znaků ASCII kódu uložených v interní paměti driveru HD44780, nebo znaků vložených do interní paměti uživatelem (8 pozic pro uživatelské znaky). Obsahuje 8 pinů pro vstupní data, 4 piny pro nastavování registrů a piny napájení. V naší aplikaci se používá pouze 4 datové piny, avšak informace vysílané na LCD jsou pořád 8-mi bitové, pouze vysílané ve 2 fázích. Podrobnou dokumentaci k tomuto LCD dipleji naleznete [zde](https://digilent.com/reference/_media/pmod:pmod:pmodCLP_rm.pdf).
+
+V našem projektu se na displeji zobrazuje úhel otočení jednotlivých motorů robotické ruky ve dvou osách a směr otáčení, případně nulová poloha.
+
+### Joystick
+Joystick je dvou osé vstupní zařízení, které nám umožńuje pohyb ve čtyřech směrech. Jeho konstrukce obsahuje dva potenciometry, každý pro jednu osu. Napětí na potenciometru přivádíme na analogový vstup mikrokontroléru a převádíme na digitální hodnotu. Přesný popis funkčnosti naleznete [zde](https://create.arduino.cc/projecthub/MisterBotBreak/how-to-use-a-joystick-with-serial-monitor-1f04f0). Obsahuje 5 pinů. Dva pro napájení (+5 V, GND), jeden pro talčítko (SW) a dva pro analogové hodnoty napětí z potenciometru (VRX, VRY).
+
+Joystick používáme pro ovládání simulátoru 2D robotické ruky.
+
+### Servo motory SG90
+Servo motory jsou speciální tip DC motorů, které obsahují řídící elektroniku. Ta z otáčejícího motoru udělá ovládací mechanismus, který drží svoji polohu v nastavené pozici. Navíc jsou servo motory schopny vyvinout poměrně velkou sílu při malé hmotnosti a rozměrech. Použité servo motory obsahují tři vodiče. Dva jsou napájecí červený (+5 V) a hnědý (GND). Poslední má obvykle oranžovou barvu a slouží pro komunikaci se servo motorem. Úhel natočení servo motoru probíhá pomocí PWM signálu, kdy úhel natočení určuje délka pulzu v logické 1. 
+
+![image](https://user-images.githubusercontent.com/99399676/206911080-c242640b-169d-4054-bc55-c7c20d389ee4.png)
+![image](https://user-images.githubusercontent.com/99399676/206911622-6686023e-4188-4ff6-b1fe-3b91884e14c5.png)
+
+
+Převzato z: https://navody.dratek.cz/arduino-projekty/servo-motor.html
+
+V projekty tyto motory simulují pohyb robotické ruky ve dvou dimenzích. Jeden servo motor zajišťuje pohyb v ose x a druhý v ose y.
 
 ## Software description
 
