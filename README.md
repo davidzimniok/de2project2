@@ -40,9 +40,10 @@ The goal of the project is cooperation in pairs, further study of the topic, des
 
 ## Hardware description
 
-V projektu je použit mikrokontrolér Arduino Uno, který je založen na AVR čipu ATMEGA328P. Jako vnější periferie jsou použity LCD displey Digilent pro zobrazování informací, joystick pro ovládání zařízení a dva servo motory SG90. Servo motory představují pohony  pohyb robotické ruky ve dvou dimenzích.
+V projektu je použit mikrokontrolér Arduino Uno, který je založen na AVR čipu ATMEGA328P. Jako vnější periferie jsou použity LCD displey Digilent pro zobrazování informací, joystick pro ovládání zařízení a dva servo motory SG90. Servo motory představují pohony pro pohyb robotické ruky ve dvou dimenzích.
 
 ### Schéma zapojení
+![DE2-5](https://user-images.githubusercontent.com/99399676/206914946-5adebb79-1961-4ea9-9f32-605818ca58a4.jpg)
 
 
 ### Digilent PmodCLP LCD module
