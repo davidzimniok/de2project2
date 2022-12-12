@@ -12,7 +12,7 @@ The goal of the project is cooperation in pairs, further study of the topic, des
 
 * The source code for the AVR must be written in C and/or Assembly and must be implementable on Arduino Uno board using toolchains from the semester, ie PlatformIO and not in the Arduino-style. No other development tools are allowed.
 
-## Recommended GitHub repository structure
+## Obsah github repozitáře
 
 ```c
    project2        // PlatfomIO project
@@ -33,14 +33,16 @@ The goal of the project is cooperation in pairs, further study of the topic, des
    ```
 
 
-### Team members
+### Členové týmu
 
 * Vojtěch Vídenský (zodopovědný za zapojení, github repozitář, video, testování aplikace)
 * David Zimniok (zodpovědný za zdrojový kód)
 
-## Hardware description
+## Popis použitého hardware
 
 V projektu je použit mikrokontrolér Arduino Uno, který je založen na AVR čipu ATMEGA328P. Jako vnější periferie jsou použity LCD displey Digilent pro zobrazování informací, joystick pro ovládání zařízení a dva servo motory SG90. Servo motory představují pohony pro pohyb robotické ruky ve dvou dimenzích.
+
+Část popisu je převzata z již odevzdaného projektu číslo 1 dostupného na adrese: [https://github.com/davidzimniok/de2project1](https://github.com/davidzimniok/de2project1).
 
 ### Schéma zapojení
 ![DE2-5](https://user-images.githubusercontent.com/99399676/206914946-5adebb79-1961-4ea9-9f32-605818ca58a4.jpg)
@@ -57,7 +59,7 @@ Joystick je dvou osé vstupní zařízení, které nám umožńuje pohyb ve čty
 Joystick používáme pro ovládání simulátoru 2D robotické ruky.
 
 ### Servo motory SG90
-Servo motory jsou speciální tip DC motorů, které obsahují řídící elektroniku. Ta z otáčejícího motoru udělá ovládací mechanismus, který drží svoji polohu v nastavené pozici. Navíc jsou servo motory schopny vyvinout poměrně velkou sílu při malé hmotnosti a rozměrech. Použité servo motory obsahují tři vodiče. Dva jsou napájecí červený (+5 V) a hnědý (GND). Poslední má obvykle oranžovou barvu a slouží pro komunikaci se servo motorem. Úhel natočení servo motoru probíhá pomocí PWM signálu, kdy úhel natočení určuje délka pulzu v logické 1. 
+Servo motory je speciální typ DC motorů, které obsahují řídící elektroniku. Motor díky elektronice drží svoji polohu v nastavené pozici, definované právě délkou pulsu přivedeného na řídící vstup motoru. Navíc jsou servo motory schopny vyvinout poměrně velkou sílu při malé hmotnosti a rozměrech. Použité servo motory obsahují tři vodiče. Dva jsou napájecí červený (+5 V) a hnědý (GND). Poslední má obvykle oranžovou barvu a slouží pro komunikaci se servo motorem. Úhel natočení servo motoru probíhá pomocí PWM signálu, kdy úhel natočení určuje délka pulzu v logické 1. 
 
 ![image](https://user-images.githubusercontent.com/99399676/206911080-c242640b-169d-4054-bc55-c7c20d389ee4.png)
 ![image](https://user-images.githubusercontent.com/99399676/206911622-6686023e-4188-4ff6-b1fe-3b91884e14c5.png)
@@ -65,19 +67,21 @@ Servo motory jsou speciální tip DC motorů, které obsahují řídící elektr
 
 Převzato z: https://navody.dratek.cz/arduino-projekty/servo-motor.html
 
-V projekty tyto motory simulují pohyb robotické ruky ve dvou dimenzích. Jeden servo motor zajišťuje pohyb v ose x a druhý v ose y.
+V projektu tyto motory simulují pohyb robotické ruky ve dvou dimenzích. Jeden servo motor zajišťuje pohyb v ose x a druhý v ose y.
 
-## Software description
+## Popis zdrojového kódu
+
+Část popisu je převzata z již odevzdaného projektu číslo 1 dostupného na adrese: [https://github.com/davidzimniok/de2project1](https://github.com/davidzimniok/de2project1).
 
 ### Knihovna timer.h
-Knihovna je použitá pouze pro nastavení časovače 1, který obsuhuje joystick a operace spojené s ním. Natáčí servomotorky a vypisuje data na LCD.
+Knihovna je použitá pouze pro nastavení časovače 1, který v obsluze přerušení čte data z joysticku, natáčí servomotorky a vypisuje data na LCD.
 
 Knihovna timer.h je dostupná [zde](/include/timer.h). Popis registrů je dostupný v oficiálním manuálu [ATmega328P_Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf) na straně 108-113 pro timer 1.
 
 ### Knihovna gpio.h
 Z knihovny gpio.h je využitá pouze jedna funkce, která by se dala nahradit pouhým zápisem 1čky do registru. Jedná se o funkci ```GPIO_output()```, která přiřazuje do DDRx registru 1čku na pozici pinu který používáme např.: ```DDRD |= (1UL<<2)``` je nastavení pinu 2 na portu D (PD2). Díky použití této funkce můžeme jednoduše změnit tyto piny, když bychom změnili zařízení například na Arduino Mega.
 
-### Library lcd.h
+### Knihovna lcd.h
 Knihovna použita od autora Peter Fleury. Stránky projektu jsou dostupné na: [http://www.peterfleury.epizy.com/avr-lcd44780.html](http://www.peterfleury.epizy.com/avr-lcd44780.html). Ke knihovně je přidán soubor [lcd_definitions.h](/lib/lcd/lcd_definitions.h), který pouze definuje podobným způsobem jako pro GPIO porty, na kterých pinech jsou zapojené datové a řídící signály pro LCD display.
 
 ### Zdrojový kód main.c
@@ -85,11 +89,11 @@ Soubor se skládá z funkce main, která má za úkol nastavit všechny registry
 
 #### Nastavení timerů pro použití PWM módu
 
-Pro použití rychlého PWM je nutno nastavit správně registry. Prvním důležitým registrem je TCCRxB, který nastavuje předděličku pro výsledné PWM. Zde je důležité dodržet to, že pro natoční servomotorku do pozice odpovídající 0 stupňům je nutné přivést na servo signál, který nehledě na délku nulového impulsu musí být jedničkový stav dlouhý 1ms a pro natočení do úhlu 180 stupňů musí být impuls dlouhý 2ms. Proto je nutné nastavit dělení tak, aby perioda PWM signálu byla minimálně 2ms. Pokud nastavíme prescaler na 256 tak při frekvencí jádra 16MHz získáme frekvenci kolem 4ms (viz rovince).
+Pro použití rychlého PWM je nutno nastavit správně registry. Prvním důležitým registrem je TCCRxB, který nastavuje předděličku pro výsledné PWM. Zde je důležité dodržet to, že pro natočení servomotorku do pozice odpovídající 0 stupňům je nutné přivést na servo signál, který nehledě na délku nulového impulsu musí mít jedničkový stav dlouhý 1ms a pro natočení do úhlu 180 stupňů musí být impuls dlouhý 2ms. Proto je nutné nastavit dělení tak, aby perioda PWM signálu byla minimálně 2ms. Pokud nastavíme prescaler na 256 tak při frekvencí jádra 16MHz získáme frekvenci kolem 4ms (viz rovince).
 
 ![výpočet frekvence PWM signálu](/images/eq1.png)
 
-Dále teoreticky pokud budeme signál délku periody vydělíme 255 (maximální hodnota, která určuje střídu) a vynásobíme požadovanou střídou v rozsahu 0 až 255, získáme požadovaný signál. Bohužel tato úvaha se nám nepotvrdila, avšak empiricky jsme nastavili střídy na: minimálně 35 a maximálne 135.
+Dále teoreticky pokud délku periody vydělíme 255 (maximální hodnota, která určuje střídu) a vynásobíme požadovanou střídou v rozsahu 0 až 255, získáme požadovaný signál. Bohužel tato úvaha se nám nepotvrdila, avšak empiricky jsme nastavili střídy na: minimálně 35 a maximálne 135.
 
 Registr TCCRxA nastavuje: bit 7 nastaví, že dojde k vynulování registru OC2A, když dojde k vyrovnání vnitčních čítačů, bit 0 a 1 nastavují právě fast PWM mód. Vše je opět dohledatelné v datesheetu v sekci popisující timer-y. ([ATmega328P_Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf))
 
