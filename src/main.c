@@ -170,7 +170,7 @@ ISR(TIMER1_OVF_vect){
 
 /**********************************************************************
  * Function: ADC complete interrupt
- * Purpose:  Display converted value on LCD screen.
+ * Purpose:  Do nothing. Used to change interrupt flag.
  **********************************************************************/
 ISR(ADC_vect){
     ;
