@@ -24,12 +24,10 @@
 /* Function definitions ----------------------------------------------*/
 /**********************************************************************
  * Function: Main function where the program execution begins
- * Purpose:  Use Timer/Counter1 and start ADC conversion every 100 ms.
- *           When AD conversion ends, send converted value to LCD screen.
+ * Purpose:  Initialize all used peripherals and start timer1 and enable interrupt.
  * Returns:  none
  **********************************************************************/
 int main(void){
-
     //initialization of UART (used only for testing purposes)
     uart_init(UART_BAUD_SELECT(9600,F_CPU));
     //set output pins for PWM to output mode
@@ -85,7 +83,8 @@ int main(void){
 /* Interrupt service routines ----------------------------------------*/
 /**********************************************************************
  * Function: Timer/Counter1 overflow interrupt
- * Purpose:  Use single conversion mode and start conversion every 100 ms.
+ * Purpose:  Use single conversion mode and start conversion every 160 ms. Print value to LCD
+ *             and rotate servo motor.
  **********************************************************************/
 ISR(TIMER1_OVF_vect){
   static uint8_t overfl=0;
